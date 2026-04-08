@@ -8,10 +8,5 @@ result
 .jj/
 
 # Home Assistant runtime state (used by compose demo)
-config/.cache/
-config/.storage/
-config/.ha_run.lock
-config/blueprints/
-config/home-assistant_v2.db*
-config/home-assistant.log*
-config/.HA_VERSION
+config/*
+!config/configuration.yaml
