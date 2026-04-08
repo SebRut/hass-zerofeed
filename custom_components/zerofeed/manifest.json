@@ -1,0 +1,12 @@
+{
+  "domain": "zerofeed",
+  "name": "ZeroFeed (Battery Feed-in Allocation)",
+  "config_flow": true,
+  "documentation": "https://example.invalid/hass-zerofeed",
+  "issue_tracker": "https://example.invalid/hass-zerofeed/issues",
+  "codeowners": [],
+  "iot_class": "local_polling",
+  "requirements": [],
+  "version": "0.1.0"
+}
+

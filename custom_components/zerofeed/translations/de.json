@@ -1,0 +1,110 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "ZeroFeed",
+        "description": "Konfiguriere den Sensor für die Systemlast.",
+        "data": {
+          "load_entity": "Systemlast-Leistung (Entity)"
+        }
+      },
+      "battery": {
+        "title": "Batterie",
+        "description": "Füge eine Batterie hinzu (wiederhole das für alle Batterien).",
+        "data": {
+          "name": "Batterie-Name",
+          "soc_entity": "SoC-Entity (%)",
+          "capacity_entity": "Kapazitäts-Entity (Wh/kWh)",
+          "min_soc_entity": "SoC-Schwellwert-Entity (%) (optional)",
+          "add_another": "Weitere Batterie hinzufügen"
+        }
+      }
+    },
+    "error": {
+      "invalid_load_unit": "Last-Entity muss die Einheit W oder kW haben.",
+      "invalid_soc_unit": "SoC-Entity muss die Einheit % haben.",
+      "invalid_capacity_unit": "Kapazitäts-Entity muss die Einheit Wh oder kWh haben.",
+      "invalid_min_soc_unit": "SoC-Schwellwert-Entity muss die Einheit % haben."
+    }
+  },
+  "options": {
+    "step": {
+      "menu": {
+        "title": "ZeroFeed Optionen",
+        "menu_options": {
+          "change_load": "Last-Entity ändern",
+          "add_battery": "Batterie hinzufügen",
+          "edit_battery": "Batterie bearbeiten"
+        }
+      },
+      "change_load": {
+        "title": "Last-Entity ändern",
+        "data": {
+          "load_entity": "Systemlast-Leistung (Entity)"
+        }
+      },
+      "add_battery": {
+        "title": "Batterie hinzufügen",
+        "data": {
+          "name": "Batterie-Name",
+          "soc_entity": "SoC-Entity (%)",
+          "capacity_entity": "Kapazitäts-Entity (Wh/kWh)",
+          "min_soc_entity": "SoC-Schwellwert-Entity (%) (optional)"
+        }
+      },
+      "edit_battery": {
+        "title": "Batterie auswählen",
+        "data": {
+          "battery_id": "Batterie"
+        }
+      },
+      "edit_battery_settings": {
+        "title": "Batterie bearbeiten",
+        "data": {
+          "name": "Batterie-Name",
+          "soc_entity": "SoC-Entity (%)",
+          "capacity_entity": "Kapazitäts-Entity (Wh/kWh)",
+          "min_soc_entity": "SoC-Schwellwert-Entity (%) (optional)"
+        }
+      }
+    }
+    ,
+    "abort": {
+      "no_batteries": "Keine Batterien konfiguriert.",
+      "battery_not_found": "Batterie nicht gefunden."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "total_feedin_power": {
+        "name": "Gesamt-Einspeiseleistung"
+      },
+      "target_total_power": {
+        "name": "Ziel-Gesamtleistung"
+      },
+      "average_soc": {
+        "name": "Durchschnittlicher SoC"
+      },
+      "feedin_power": {
+        "name": "Einspeiseleistung"
+      },
+      "share": {
+        "name": "Anteil"
+      }
+    },
+    "number": {
+      "total_max_power": {
+        "name": "Maximale Gesamtleistung"
+      },
+      "per_battery_max_power": {
+        "name": "Maximale Leistung je Batterie"
+      },
+      "sigmoid_steepness": {
+        "name": "Sigmoid-Steigung"
+      },
+      "sigmoid_center_offset": {
+        "name": "Sigmoid-Mittenoffset"
+      }
+    }
+  }
+}

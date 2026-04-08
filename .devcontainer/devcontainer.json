@@ -1,0 +1,13 @@
+{
+  "name": "Home Assistant Custom Component",
+  "image": "ghcr.io/ludeeus/devcontainer/integration:stable",
+  "postCreateCommand": "container install",
+  "postStartCommand": "container start",
+  "appPort": [
+    "8123:8123"
+  ],
+  "containerEnv": {
+    "TZ": "Europe/Berlin"
+  }
+}
+

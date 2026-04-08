@@ -1,0 +1,106 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "ZeroFeed",
+        "description": "Configure the system load sensor.",
+        "data": {
+          "load_entity": "System load power entity"
+        }
+      },
+      "battery": {
+        "title": "Battery",
+        "description": "Add a battery (repeat for all batteries).",
+        "data": {
+          "name": "Battery name",
+          "soc_entity": "SoC entity (%)",
+          "capacity_entity": "Capacity entity (Wh/kWh)",
+          "min_soc_entity": "Minimum SoC threshold entity (%) (optional)",
+          "add_another": "Add another battery"
+        }
+      }
+    },
+    "error": {
+      "invalid_load_unit": "Load entity must have unit W or kW.",
+      "invalid_soc_unit": "SoC entity must have unit %.",
+      "invalid_capacity_unit": "Capacity entity must have unit Wh or kWh.",
+      "invalid_min_soc_unit": "Minimum SoC threshold entity must have unit %."
+    }
+  },
+  "options": {
+    "step": {
+      "menu": {
+        "title": "ZeroFeed Options",
+        "menu_options": {
+          "change_load": "Change load entity",
+          "add_battery": "Add battery"
+          ,
+          "edit_battery": "Edit battery"
+        }
+      },
+      "change_load": {
+        "title": "Change Load Entity",
+        "data": {
+          "load_entity": "System load power entity"
+        }
+      },
+      "add_battery": {
+        "title": "Add Battery",
+        "data": {
+          "name": "Battery name",
+          "soc_entity": "SoC entity (%)",
+          "capacity_entity": "Capacity entity (Wh/kWh)",
+          "min_soc_entity": "Minimum SoC threshold entity (%) (optional)"
+        }
+      },
+      "edit_battery": {
+        "title": "Select Battery",
+        "data": {
+          "battery_id": "Battery"
+        }
+      },
+      "edit_battery_settings": {
+        "title": "Edit Battery",
+        "data": {
+          "name": "Battery name",
+          "soc_entity": "SoC entity (%)",
+          "capacity_entity": "Capacity entity (Wh/kWh)",
+          "min_soc_entity": "Minimum SoC threshold entity (%) (optional)"
+        }
+      }
+    }
+  },
+  "entity": {
+    "sensor": {
+      "total_feedin_power": {
+        "name": "Total feed-in power"
+      },
+      "target_total_power": {
+        "name": "Target total power"
+      },
+      "average_soc": {
+        "name": "Average SoC"
+      },
+      "feedin_power": {
+        "name": "Feed-in power"
+      },
+      "share": {
+        "name": "Share"
+      }
+    },
+    "number": {
+      "total_max_power": {
+        "name": "Total max power"
+      },
+      "per_battery_max_power": {
+        "name": "Per-battery max power"
+      },
+      "sigmoid_steepness": {
+        "name": "Sigmoid steepness"
+      },
+      "sigmoid_center_offset": {
+        "name": "Sigmoid center offset"
+      }
+    }
+  }
+}
