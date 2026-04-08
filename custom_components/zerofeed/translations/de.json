@@ -111,6 +111,9 @@
       },
       "sigmoid_center_offset": {
         "name": "Sigmoid-Mittenoffset"
+      },
+      "high_soc_threshold": {
+        "name": "Prioritätsschwelle hoher SoC"
       }
     }
   }

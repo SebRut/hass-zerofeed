@@ -20,9 +20,11 @@ from .const import (
     CONF_MIN_SOC_ENTITY,
     CONF_SOC_ENTITY,
     CTRL_PER_BATTERY_MAX_W,
+    CTRL_HIGH_SOC_THRESHOLD,
     CTRL_SIGMOID_CENTER_OFFSET,
     CTRL_SIGMOID_K,
     CTRL_TOTAL_MAX_W,
+    DEFAULT_HIGH_SOC_THRESHOLD,
     DEFAULT_PER_BATTERY_MAX_W,
     DEFAULT_SIGMOID_CENTER_OFFSET,
     DEFAULT_SIGMOID_K,
@@ -74,6 +76,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
             CTRL_PER_BATTERY_MAX_W: DEFAULT_PER_BATTERY_MAX_W,
             CTRL_SIGMOID_K: DEFAULT_SIGMOID_K,
             CTRL_SIGMOID_CENTER_OFFSET: DEFAULT_SIGMOID_CENTER_OFFSET,
+            CTRL_HIGH_SOC_THRESHOLD: DEFAULT_HIGH_SOC_THRESHOLD,
         }
 
         existing: set[str] = set()
@@ -120,6 +123,11 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
 
         sigmoid_k = float(self.controls.get(CTRL_SIGMOID_K, DEFAULT_SIGMOID_K))
         center_offset = float(self.controls.get(CTRL_SIGMOID_CENTER_OFFSET, DEFAULT_SIGMOID_CENTER_OFFSET))
+        high_soc_threshold = clamp(
+            float(self.controls.get(CTRL_HIGH_SOC_THRESHOLD, DEFAULT_HIGH_SOC_THRESHOLD)),
+            0.0,
+            100.0,
+        )
 
         battery_data: dict[str, dict] = {}
         valid: list[tuple[BatteryConfig, float, float]] = []
@@ -218,6 +226,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
                     "per_battery_max_w": float(self.controls.get(CTRL_PER_BATTERY_MAX_W, DEFAULT_PER_BATTERY_MAX_W)),
                     "sigmoid_k": sigmoid_k,
                     "sigmoid_center_offset": center_offset,
+                    "high_soc_threshold": high_soc_threshold,
                 },
                 "batteries": battery_data,
             }
@@ -244,7 +253,29 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
         allocations: dict[str, float] = {b.battery_id: 0.0 for b, _, _ in valid}
 
         headroom = {bid: per_batt_max[bid] for bid in allocations}
-        _distribute_with_caps(allocations, effective_target, raw_weights, headroom)
+        if high_soc_threshold > 0.0:
+            priority_ids = {
+                b.battery_id for b, soc, _ in valid if soc >= high_soc_threshold
+            }
+        else:
+            priority_ids = set()
+
+        if priority_ids:
+            priority_caps = {
+                bid: headroom[bid] if bid in priority_ids else 0.0 for bid in allocations
+            }
+            _distribute_with_caps(allocations, effective_target, raw_weights, priority_caps)
+            remaining = effective_target - sum(allocations.values())
+            if remaining > 1e-6:
+                spillover_caps = {
+                    bid: max(0.0, headroom[bid] - allocations[bid])
+                    if bid not in priority_ids
+                    else 0.0
+                    for bid in allocations
+                }
+                _distribute_with_caps(allocations, remaining, raw_weights, spillover_caps)
+        else:
+            _distribute_with_caps(allocations, effective_target, raw_weights, headroom)
 
         total_feedin = sum(allocations.values())
         if total_feedin > 0:
@@ -268,6 +299,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
                 "per_battery_max_w": per_battery_max_w,
                 "sigmoid_k": sigmoid_k,
                 "sigmoid_center_offset": center_offset,
+                "high_soc_threshold": high_soc_threshold,
                 "sum_max_w": sum_max,
                 "effective_target_w": effective_target,
             },

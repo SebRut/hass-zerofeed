@@ -13,9 +13,11 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
     CTRL_PER_BATTERY_MAX_W,
+    CTRL_HIGH_SOC_THRESHOLD,
     CTRL_SIGMOID_CENTER_OFFSET,
     CTRL_SIGMOID_K,
     CTRL_TOTAL_MAX_W,
+    DEFAULT_HIGH_SOC_THRESHOLD,
     DEFAULT_PER_BATTERY_MAX_W,
     DEFAULT_SIGMOID_CENTER_OFFSET,
     DEFAULT_SIGMOID_K,
@@ -87,6 +89,17 @@ async def async_setup_entry(
             step=0.1,
             default=DEFAULT_SIGMOID_CENTER_OFFSET,
             icon="mdi:axis-arrow",
+            mode=NumberMode.BOX,
+        ),
+        NumberSpec(
+            key=CTRL_HIGH_SOC_THRESHOLD,
+            translation_key="high_soc_threshold",
+            unit="%",
+            min_value=0.0,
+            max_value=100.0,
+            step=1.0,
+            default=DEFAULT_HIGH_SOC_THRESHOLD,
+            icon="mdi:battery-arrow-down",
             mode=NumberMode.BOX,
         ),
     ]
