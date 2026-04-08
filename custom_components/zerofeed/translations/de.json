@@ -34,7 +34,8 @@
         "menu_options": {
           "change_load": "Last-Entity ändern",
           "add_battery": "Batterie hinzufügen",
-          "edit_battery": "Batterie bearbeiten"
+          "edit_battery": "Batterie bearbeiten",
+          "remove_battery": "Batterie entfernen"
         }
       },
       "change_load": {
@@ -65,6 +66,12 @@
           "soc_entity": "SoC-Entity (%)",
           "capacity_entity": "Kapazitäts-Entity (Wh/kWh)",
           "min_soc_entity": "SoC-Schwellwert-Entity (%) (optional)"
+        }
+      },
+      "remove_battery": {
+        "title": "Batterie entfernen",
+        "data": {
+          "battery_id": "Batterie"
         }
       }
     }

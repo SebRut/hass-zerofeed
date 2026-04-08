@@ -210,7 +210,7 @@ class ZerofeedOptionsFlowHandler(config_entries.OptionsFlow):
     async def async_step_menu(self, user_input: dict | None = None):
         return self.async_show_menu(
             step_id="menu",
-            menu_options=["change_load", "add_battery", "edit_battery"],
+            menu_options=["change_load", "add_battery", "edit_battery", "remove_battery"],
         )
 
     async def async_step_change_load(self, user_input: dict | None = None):
@@ -366,6 +366,29 @@ class ZerofeedOptionsFlowHandler(config_entries.OptionsFlow):
                 min_soc_entity=battery.get(CONF_MIN_SOC_ENTITY),
             ),
             errors=errors,
+        )
+
+    async def async_step_remove_battery(self, user_input: dict | None = None):
+        batteries = self._current_batteries()
+        choices = {b.get(CONF_BATTERY_ID, ""): b.get(CONF_BATTERY_NAME, b.get(CONF_BATTERY_ID, "")) for b in batteries}
+        choices = {k: v for k, v in choices.items() if k}
+
+        if not choices:
+            return self.async_abort(reason="no_batteries")
+
+        if user_input is not None:
+            bid = user_input["battery_id"]
+            new_batteries = [b for b in batteries if b.get(CONF_BATTERY_ID) != bid]
+            if len(new_batteries) == len(batteries):
+                return self.async_abort(reason="battery_not_found")
+
+            options = dict(self._entry.options)
+            options[CONF_BATTERIES] = new_batteries
+            return self.async_create_entry(title="", data=options)
+
+        return self.async_show_form(
+            step_id="remove_battery",
+            data_schema=vol.Schema({vol.Required("battery_id"): vol.In(choices)}),
         )
 
 

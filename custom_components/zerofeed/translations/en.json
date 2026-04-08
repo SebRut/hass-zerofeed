@@ -34,7 +34,8 @@
         "menu_options": {
           "change_load": "Change load entity",
           "add_battery": "Add battery",
-          "edit_battery": "Edit battery"
+          "edit_battery": "Edit battery",
+          "remove_battery": "Remove battery"
         }
       },
       "change_load": {
@@ -65,6 +66,12 @@
           "soc_entity": "SoC entity (%)",
           "capacity_entity": "Capacity entity (Wh/kWh)",
           "min_soc_entity": "Minimum SoC threshold entity (%) (optional)"
+        }
+      },
+      "remove_battery": {
+        "title": "Remove Battery",
+        "data": {
+          "battery_id": "Battery"
         }
       }
     }
