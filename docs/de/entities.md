@@ -12,6 +12,7 @@ Diese Seite listet die von der Integration angelegten Entities.
 | Sensor | Lastleistung | Nein | Aktuelle Last aus Sicht der Integration (W). |
 | Sensor | Summe Maximalleistung | Nein | Summe aller Batterie-Limits (W). |
 | Sensor | Effektive Ziel-Leistung | Nein | Ziel nach Anwendung der Summenbegrenzung (W). |
+| Bild | Sigmoid-Kurve | Nein | Visualisierung der aktuellen Sigmoid-Kurve basierend auf Ø-SoC und den Reglern. |
 | Zahl | Maximale Gesamtleistung | Ja | Maximale Gesamt-Entladeleistung (W). |
 | Zahl | Maximale Leistung je Batterie | Ja | Standardlimit pro Batterie (W). |
 | Zahl | Sigmoid-Steigung | Ja | Wie stark hohe SoC bevorzugt werden. |

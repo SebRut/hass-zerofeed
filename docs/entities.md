@@ -12,6 +12,7 @@ This page lists the entities created by the integration.
 | Sensor | Load power | No | Current load as seen by the integration (W). |
 | Sensor | Sum max power | No | Sum of all per-battery caps (W). |
 | Sensor | Effective target power | No | Target after applying the sum of caps (W). |
+| Image | Sigmoid curve | No | Visualizes the current sigmoid curve based on avg SoC and the tuning controls. |
 | Number | Total max power | Yes | Total discharge cap for all batteries combined (W). |
 | Number | Per-battery max power | Yes | Default per-battery cap (W). |
 | Number | Sigmoid steepness | Yes | How strongly higher SoC is preferred. |

@@ -123,6 +123,11 @@
         "name": "Battery enabled"
       }
     },
+    "image": {
+      "sigmoid_curve": {
+        "name": "Sigmoid curve"
+      }
+    },
     "number": {
       "total_max_power": {
         "name": "Total max power"
