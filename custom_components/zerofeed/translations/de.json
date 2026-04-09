@@ -98,11 +98,29 @@
       "average_soc": {
         "name": "Durchschnittlicher SoC"
       },
+      "load_power": {
+        "name": "Lastleistung"
+      },
+      "sum_max_power": {
+        "name": "Summe Maximalleistung"
+      },
+      "effective_target_power": {
+        "name": "Effektive Ziel-Leistung"
+      },
       "feedin_power": {
         "name": "Einspeiseleistung"
       },
       "share": {
         "name": "Anteil"
+      },
+      "capacity_wh": {
+        "name": "Kapazität (berechnet)"
+      },
+      "min_soc_threshold": {
+        "name": "Min-SoC-Schwelle (berechnet)"
+      },
+      "raw_weight": {
+        "name": "Rohgewicht"
       }
     },
     "switch": {

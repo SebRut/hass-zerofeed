@@ -6,6 +6,7 @@ from homeassistant.components.sensor import SensorDeviceClass, SensorEntity, Sen
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
@@ -30,12 +31,18 @@ async def async_setup_entry(
         ZerofeedTotalFeedinSensor(coordinator, entry),
         ZerofeedTargetSensor(coordinator, entry),
         ZerofeedAvgSocSensor(coordinator, entry),
+        ZerofeedLoadSensor(coordinator, entry),
+        ZerofeedSumMaxSensor(coordinator, entry),
+        ZerofeedEffectiveTargetSensor(coordinator, entry),
     ]
 
     for b in coordinator.batteries:
         bref = _BatteryRef(battery_id=b.battery_id, name=b.name)
         entities.append(ZerofeedBatteryFeedinSensor(coordinator, entry, bref))
         entities.append(ZerofeedBatteryShareSensor(coordinator, entry, bref))
+        entities.append(ZerofeedBatteryCapacitySensor(coordinator, entry, bref))
+        entities.append(ZerofeedBatteryMinSocSensor(coordinator, entry, bref))
+        entities.append(ZerofeedBatteryRawWeightSensor(coordinator, entry, bref))
 
     async_add_entities(entities)
 
@@ -114,6 +121,66 @@ class ZerofeedAvgSocSensor(_ZerofeedBaseSensor):
         return None if val is None else round(float(val), 1)
 
 
+class _ZerofeedDiagnosticSensor(_ZerofeedBaseSensor):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+
+
+class ZerofeedLoadSensor(_ZerofeedDiagnosticSensor):
+    _attr_translation_key = "load_power"
+    _attr_native_unit_of_measurement = "W"
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: ZerofeedCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_load_power"
+
+    @property
+    def native_value(self) -> float | None:
+        if not self.coordinator.data:
+            return None
+        return round(float(self.coordinator.data.get("load_w")), 1)
+
+
+class ZerofeedSumMaxSensor(_ZerofeedDiagnosticSensor):
+    _attr_translation_key = "sum_max_power"
+    _attr_native_unit_of_measurement = "W"
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: ZerofeedCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_sum_max_power"
+
+    @property
+    def native_value(self) -> float | None:
+        if not self.coordinator.data:
+            return None
+        controls = self.coordinator.data.get("controls") or {}
+        value = controls.get("sum_max_w")
+        return None if value is None else round(float(value), 1)
+
+
+class ZerofeedEffectiveTargetSensor(_ZerofeedDiagnosticSensor):
+    _attr_translation_key = "effective_target_power"
+    _attr_native_unit_of_measurement = "W"
+    _attr_device_class = SensorDeviceClass.POWER
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: ZerofeedCoordinator, entry: ConfigEntry) -> None:
+        super().__init__(coordinator, entry)
+        self._attr_unique_id = f"{entry.entry_id}_effective_target_power"
+
+    @property
+    def native_value(self) -> float | None:
+        if not self.coordinator.data:
+            return None
+        controls = self.coordinator.data.get("controls") or {}
+        value = controls.get("effective_target_w")
+        return None if value is None else round(float(value), 1)
+
+
 class _ZerofeedBatteryBaseSensor(CoordinatorEntity[ZerofeedCoordinator], SensorEntity):
     def __init__(self, coordinator: ZerofeedCoordinator, entry: ConfigEntry, battery: _BatteryRef) -> None:
         super().__init__(coordinator)
@@ -183,3 +250,62 @@ class ZerofeedBatteryShareSensor(_ZerofeedBatteryBaseSensor):
         if not data or data.get("share") is None:
             return None
         return round(float(data["share"]) * 100.0, 1)
+
+
+class _ZerofeedBatteryDiagnosticSensor(_ZerofeedBatteryBaseSensor):
+    _attr_entity_category = EntityCategory.DIAGNOSTIC
+    _attr_entity_registry_enabled_default = False
+
+
+class ZerofeedBatteryCapacitySensor(_ZerofeedBatteryDiagnosticSensor):
+    _attr_translation_key = "capacity_wh"
+    _attr_native_unit_of_measurement = "Wh"
+    _attr_device_class = SensorDeviceClass.ENERGY
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: ZerofeedCoordinator, entry: ConfigEntry, battery: _BatteryRef) -> None:
+        super().__init__(coordinator, entry, battery)
+        self._attr_unique_id = f"{entry.entry_id}_{battery.battery_id}_capacity_wh"
+
+    @property
+    def native_value(self) -> float | None:
+        data = self._battery_data
+        if not data:
+            return None
+        value = data.get("capacity_wh")
+        return None if value is None else round(float(value), 1)
+
+
+class ZerofeedBatteryMinSocSensor(_ZerofeedBatteryDiagnosticSensor):
+    _attr_translation_key = "min_soc_threshold"
+    _attr_native_unit_of_measurement = "%"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: ZerofeedCoordinator, entry: ConfigEntry, battery: _BatteryRef) -> None:
+        super().__init__(coordinator, entry, battery)
+        self._attr_unique_id = f"{entry.entry_id}_{battery.battery_id}_min_soc_threshold"
+
+    @property
+    def native_value(self) -> float | None:
+        data = self._battery_data
+        if not data:
+            return None
+        value = data.get("min_soc_threshold")
+        return None if value is None else round(float(value), 1)
+
+
+class ZerofeedBatteryRawWeightSensor(_ZerofeedBatteryDiagnosticSensor):
+    _attr_translation_key = "raw_weight"
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(self, coordinator: ZerofeedCoordinator, entry: ConfigEntry, battery: _BatteryRef) -> None:
+        super().__init__(coordinator, entry, battery)
+        self._attr_unique_id = f"{entry.entry_id}_{battery.battery_id}_raw_weight"
+
+    @property
+    def native_value(self) -> float | None:
+        data = self._battery_data
+        if not data:
+            return None
+        value = data.get("raw_weight")
+        return None if value is None else round(float(value), 4)
