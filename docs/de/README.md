@@ -1,0 +1,4 @@
+# Dokumentation
+
+- Entscheidungsprozess: [decision_process.md](decision_process.md)
+- FAQ: [faq.md](faq.md)
