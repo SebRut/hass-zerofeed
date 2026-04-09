@@ -81,6 +81,12 @@
       "battery_not_found": "Batterie nicht gefunden."
     }
   },
+  "issues": {
+    "invalid_unit": {
+      "title": "Ungültige Einheit für {entity_id}",
+      "description": "Die Entity meldet die Einheit {unit}, erwartet wird {expected}. Passe die Quelle an oder wähle eine andere Entity."
+    }
+  },
   "entity": {
     "sensor": {
       "total_feedin_power": {

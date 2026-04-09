@@ -9,6 +9,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.helpers.update_coordinator import UpdateFailed
+from homeassistant.helpers import issue_registry as ir
 from homeassistant.util import slugify
 
 from .const import (
@@ -99,6 +100,35 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
 
         self.batteries = batteries
 
+    def _unit_issue_id(self, entity_id: str) -> str:
+        return f"invalid_unit_{slugify(entity_id)}"
+
+    def _set_unit_issue(self, entity_id: str, unit: str | None, allowed: set[str]) -> None:
+        issue_id = self._unit_issue_id(entity_id)
+        ir.async_create_issue(
+            self.hass,
+            DOMAIN,
+            issue_id,
+            is_fixable=False,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key="invalid_unit",
+            translation_placeholders={
+                "entity_id": entity_id,
+                "unit": unit or "unknown",
+                "expected": ", ".join(sorted(allowed)),
+            },
+        )
+
+    def _clear_unit_issue(self, entity_id: str) -> None:
+        ir.async_delete_issue(self.hass, DOMAIN, self._unit_issue_id(entity_id))
+
+    def _unit_ok(self, entity_id: str, unit: str | None, allowed: set[str]) -> bool:
+        if unit in allowed:
+            self._clear_unit_issue(entity_id)
+            return True
+        self._set_unit_issue(entity_id, unit, allowed)
+        return False
+
     def set_control_value(self, key: str, value: float) -> None:
         self.controls[key] = float(value)
 
@@ -115,6 +145,8 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
         load_state = read_numeric_state(self.hass, load_entity)
         if load_state.value is None:
             raise UpdateFailed(f"Load entity has no numeric state: {load_entity}")
+        if not self._unit_ok(load_entity, load_state.unit, {"W", "kW"}):
+            raise UpdateFailed(f"Load entity has invalid unit: {load_entity}")
 
         load_w = max(0.0, power_to_w(load_state.value, load_state.unit))
 
@@ -141,10 +173,41 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
             if b.min_soc_entity:
                 min_soc_state = read_numeric_state(self.hass, b.min_soc_entity)
                 if min_soc_state.value is not None:
-                    # Threshold is configured as percent.
-                    min_soc_threshold = clamp(float(min_soc_state.value), 0.0, 100.0)
+                    if self._unit_ok(b.min_soc_entity, min_soc_state.unit, {"%"}):
+                        # Threshold is configured as percent.
+                        min_soc_threshold = clamp(float(min_soc_state.value), 0.0, 100.0)
+                    else:
+                        min_soc_threshold = None
 
             if soc is None or cap is None:
+                battery_data[b.battery_id] = {
+                    "name": b.name,
+                    "valid": False,
+                    "soc": soc,
+                    "capacity_wh": None,
+                    "min_soc_threshold": min_soc_threshold,
+                    "min_soc_entity": b.min_soc_entity,
+                    "feedin_w": None,
+                    "share": None,
+                    "raw_weight": None,
+                }
+                continue
+
+            if not self._unit_ok(b.soc_entity, soc_state.unit, {"%"}):
+                battery_data[b.battery_id] = {
+                    "name": b.name,
+                    "valid": False,
+                    "soc": soc,
+                    "capacity_wh": None,
+                    "min_soc_threshold": min_soc_threshold,
+                    "min_soc_entity": b.min_soc_entity,
+                    "feedin_w": None,
+                    "share": None,
+                    "raw_weight": None,
+                }
+                continue
+
+            if not self._unit_ok(b.capacity_entity, cap_state.unit, {"Wh", "kWh"}):
                 battery_data[b.battery_id] = {
                     "name": b.name,
                     "valid": False,

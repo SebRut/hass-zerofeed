@@ -81,6 +81,12 @@
       "battery_not_found": "Battery not found."
     }
   },
+  "issues": {
+    "invalid_unit": {
+      "title": "Invalid unit for {entity_id}",
+      "description": "The entity reports unit {unit} but expected {expected}. Update the source sensor or choose another entity."
+    }
+  },
   "entity": {
     "sensor": {
       "total_feedin_power": {
