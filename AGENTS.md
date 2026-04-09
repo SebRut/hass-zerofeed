@@ -30,3 +30,4 @@ Allocation summary
 Editing notes
 - Use ASCII when editing files.
 - Keep translations in sync for new UI strings.
+- If allocation behavior or controls change, update `docs/decision_process.md` and `docs/de/decision_process.md`.

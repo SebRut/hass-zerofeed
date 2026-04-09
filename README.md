@@ -23,6 +23,8 @@ Files of interest
 - Integration code: `custom_components/zerofeed/`
 - Demo HA config for Docker: `config/configuration.yaml`
 - Docker: `compose.yaml`
+- Docs (EN): `docs/decision_process.md`
+- Docs (DE): `docs/de/decision_process.md`
 
 Notes
 - This integration only *calculates* expected allocations; it does not control inverters.
