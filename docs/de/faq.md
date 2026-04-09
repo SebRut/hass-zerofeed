@@ -20,3 +20,6 @@ Warum entlädt eine Batterie gar nicht?
 
 Wie begrenze ich eine Batterie stärker als die anderen?
 - In der Entity Registry die "Leistungsgrenze" der Batterie aktivieren und einen Wert in W setzen. Mit 0 wird die Begrenzung deaktiviert.
+
+Wie deaktiviere ich eine Batterie temporär?
+- Den Schalter "Batterie aktiviert" auf der Geräteseite der Batterie ausschalten.

@@ -23,6 +23,9 @@ Regler in der UI
 - Prioritätsschwelle hoher SoC: Batterien ab dieser SoC werden zuerst genutzt.
 - Leistungsgrenze (batteriespezifisch, optional): reduzierte Grenze für eine einzelne Batterie, falls aktiviert.
 
+Schalter pro Batterie
+- Batterie aktiviert: Batterie in die Verteilung ein- oder ausschließen.
+
 ## So entscheidet das System (einfach erklärt)
 
 1. Aktuelle Last lesen und durch das Gesamtlimit begrenzen. Das ist die Ziel-Entladeleistung.

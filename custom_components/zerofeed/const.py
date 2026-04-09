@@ -4,7 +4,7 @@ from homeassistant.const import Platform
 
 DOMAIN = "zerofeed"
 
-PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.NUMBER]
+PLATFORMS: list[Platform] = [Platform.SENSOR, Platform.NUMBER, Platform.SWITCH]
 
 CONF_LOAD_ENTITY = "load_entity"
 CONF_BATTERIES = "batteries"

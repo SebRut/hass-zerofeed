@@ -105,6 +105,11 @@
         "name": "Anteil"
       }
     },
+    "switch": {
+      "battery_enabled": {
+        "name": "Batterie aktiviert"
+      }
+    },
     "number": {
       "total_max_power": {
         "name": "Maximale Gesamtleistung"

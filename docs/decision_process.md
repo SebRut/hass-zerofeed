@@ -23,6 +23,9 @@ Tuning knobs in the UI
 - High SoC priority threshold: if set, batteries at/above this SoC are used first.
 - Max power override (battery-specific, optional): lower cap for a specific battery if enabled.
 
+Per-battery toggle
+- Battery enabled: include or exclude a battery from allocation.
+
 ## How it decides
 
 1. Read your current load and cap it at the total max power. This becomes the target discharge power.

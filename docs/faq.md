@@ -20,3 +20,6 @@ Why does a battery not discharge at all?
 
 How do I cap one battery lower than the others?
 - Enable the "Max power override" entity for that battery in the Entity Registry, then set a value in W. Set it to 0 to disable the override.
+
+How do I temporarily disable a battery?
+- Turn off the "Battery enabled" switch on that battery's device page.

@@ -100,6 +100,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
 
         self.batteries = batteries
         self._per_battery_max_overrides: dict[str, float] = {}
+        self._battery_disabled: set[str] = set()
 
     def _unit_issue_id(self, entity_id: str) -> str:
         return f"invalid_unit_{slugify(entity_id)}"
@@ -140,6 +141,15 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
         else:
             self._per_battery_max_overrides[battery_id] = value
 
+    def set_battery_disabled(self, battery_id: str, disabled: bool) -> None:
+        if disabled:
+            self._battery_disabled.add(battery_id)
+        else:
+            self._battery_disabled.discard(battery_id)
+
+    def is_battery_disabled(self, battery_id: str) -> bool:
+        return battery_id in self._battery_disabled
+
     def iter_entity_ids(self) -> Iterable[str]:
         yield self.load_entity
         for b in self.batteries:
@@ -173,6 +183,21 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
         valid: list[tuple[BatteryConfig, float, float]] = []
 
         for b in self.batteries:
+            if self.is_battery_disabled(b.battery_id):
+                battery_data[b.battery_id] = {
+                    "name": b.name,
+                    "valid": False,
+                    "disabled": True,
+                    "soc": None,
+                    "capacity_wh": None,
+                    "min_soc_threshold": None,
+                    "min_soc_entity": b.min_soc_entity,
+                    "feedin_w": 0.0,
+                    "share": 0.0,
+                    "raw_weight": 0.0,
+                }
+                continue
+
             soc_state = read_numeric_state(self.hass, b.soc_entity)
             cap_state = read_numeric_state(self.hass, b.capacity_entity)
             soc = soc_state.value
@@ -191,6 +216,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
                 battery_data[b.battery_id] = {
                     "name": b.name,
                     "valid": False,
+                    "disabled": False,
                     "soc": soc,
                     "capacity_wh": None,
                     "min_soc_threshold": min_soc_threshold,
@@ -205,6 +231,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
                 battery_data[b.battery_id] = {
                     "name": b.name,
                     "valid": False,
+                    "disabled": False,
                     "soc": soc,
                     "capacity_wh": None,
                     "min_soc_threshold": min_soc_threshold,
@@ -219,6 +246,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
                 battery_data[b.battery_id] = {
                     "name": b.name,
                     "valid": False,
+                    "disabled": False,
                     "soc": soc,
                     "capacity_wh": None,
                     "min_soc_threshold": min_soc_threshold,
@@ -235,6 +263,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
                 battery_data[b.battery_id] = {
                     "name": b.name,
                     "valid": False,
+                    "disabled": False,
                     "soc": soc,
                     "capacity_wh": cap_wh,
                     "min_soc_threshold": min_soc_threshold,
@@ -250,6 +279,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
                 battery_data[b.battery_id] = {
                     "name": b.name,
                     "valid": False,
+                    "disabled": False,
                     "soc": soc,
                     "capacity_wh": cap_wh,
                     "min_soc_threshold": None,
@@ -265,6 +295,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
                 battery_data[b.battery_id] = {
                     "name": b.name,
                     "valid": False,
+                    "disabled": False,
                     "soc": soc,
                     "capacity_wh": cap_wh,
                     "min_soc_threshold": min_soc_threshold,
@@ -279,6 +310,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
             battery_data[b.battery_id] = {
                 "name": b.name,
                 "valid": True,
+                "disabled": False,
                 "soc": soc,
                 "capacity_wh": cap_wh,
                 "min_soc_threshold": min_soc_threshold,

@@ -21,4 +21,5 @@ This page lists the entities created by the integration.
 |--------|-------------|-----------------|-------------|
 | Sensor | Feed-in power | Yes | Allocated discharge power for the battery (W). |
 | Sensor | Share | Yes | Battery share of total feed-in (%). |
+| Switch | Battery enabled | Yes | Toggle to include or exclude the battery from allocations. |
 | Number | Max power override | No | Optional per-battery cap (W). Enable in the Entity Registry; set to 0 to disable. |

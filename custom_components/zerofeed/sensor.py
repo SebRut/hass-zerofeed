@@ -161,6 +161,7 @@ class ZerofeedBatteryFeedinSensor(_ZerofeedBatteryBaseSensor):
             "capacity_wh": data.get("capacity_wh"),
             "min_soc_threshold": data.get("min_soc_threshold"),
             "min_soc_entity": data.get("min_soc_entity"),
+            "disabled": data.get("disabled"),
             "raw_weight": data.get("raw_weight"),
             "share": data.get("share"),
             "valid": data.get("valid"),
