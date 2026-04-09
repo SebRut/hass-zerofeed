@@ -7,6 +7,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import STATE_UNAVAILABLE, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
+from homeassistant.helpers.entity import EntityCategory
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -24,7 +25,7 @@ from .const import (
     DEFAULT_TOTAL_MAX_W,
     DOMAIN,
 )
-from .coordinator import ZerofeedCoordinator
+from .coordinator import BatteryConfig, ZerofeedCoordinator
 
 
 @dataclass(frozen=True)
@@ -104,7 +105,9 @@ async def async_setup_entry(
         ),
     ]
 
-    async_add_entities([ZerofeedControlNumber(coordinator, entry, s) for s in specs])
+    entities: list[NumberEntity] = [ZerofeedControlNumber(coordinator, entry, s) for s in specs]
+    entities.extend(ZerofeedBatteryMaxOverrideNumber(coordinator, entry, b) for b in coordinator.batteries)
+    async_add_entities(entities)
 
 
 class ZerofeedControlNumber(CoordinatorEntity[ZerofeedCoordinator], RestoreEntity, NumberEntity):
@@ -156,5 +159,56 @@ class ZerofeedControlNumber(CoordinatorEntity[ZerofeedCoordinator], RestoreEntit
 
         self._attr_native_value = value
         self.coordinator.set_control_value(self.spec.key, value)
+        self.async_write_ha_state()
+        await self.coordinator.async_request_refresh()
+
+
+class ZerofeedBatteryMaxOverrideNumber(CoordinatorEntity[ZerofeedCoordinator], RestoreEntity, NumberEntity):
+    _attr_should_poll = False
+    _attr_entity_category = EntityCategory.CONFIG
+    _attr_entity_registry_enabled_default = False
+
+    def __init__(self, coordinator: ZerofeedCoordinator, entry: ConfigEntry, battery: BatteryConfig) -> None:
+        super().__init__(coordinator)
+        self.entry = entry
+        self.battery = battery
+
+        self._attr_has_entity_name = True
+        self._attr_translation_key = "battery_max_power_override"
+        self._attr_translation_placeholders = {"battery": battery.name}
+        self._attr_unique_id = f"{entry.entry_id}_{battery.battery_id}_max_power_override"
+        self._attr_native_unit_of_measurement = "W"
+        self._attr_native_min_value = 0.0
+        self._attr_native_max_value = DEFAULT_PER_BATTERY_MAX_W
+        self._attr_native_step = 25.0
+        self._attr_icon = "mdi:battery-charging-70"
+        self._attr_mode = NumberMode.BOX
+
+        self._attr_device_info = DeviceInfo(
+            identifiers={(DOMAIN, entry.entry_id)},
+            name="ZeroFeed",
+        )
+
+        self._attr_native_value = 0.0
+
+    async def async_added_to_hass(self) -> None:
+        await super().async_added_to_hass()
+        last = await self.async_get_last_state()
+        if last and last.state not in (STATE_UNKNOWN, STATE_UNAVAILABLE):
+            try:
+                self._attr_native_value = float(last.state)
+            except (TypeError, ValueError):
+                self._attr_native_value = 0.0
+        else:
+            self._attr_native_value = 0.0
+
+        self.coordinator.set_battery_max_override(self.battery.battery_id, float(self._attr_native_value))
+        self.async_write_ha_state()
+        await self.coordinator.async_request_refresh()
+
+    async def async_set_native_value(self, value: float) -> None:
+        value = float(value)
+        self._attr_native_value = value
+        self.coordinator.set_battery_max_override(self.battery.battery_id, value)
         self.async_write_ha_state()
         await self.coordinator.async_request_refresh()

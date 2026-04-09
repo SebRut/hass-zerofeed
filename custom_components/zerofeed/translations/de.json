@@ -120,6 +120,9 @@
       },
       "high_soc_threshold": {
         "name": "Prioritätsschwelle hoher SoC"
+      },
+      "battery_max_power_override": {
+        "name": "Leistungsgrenze ({battery})"
       }
     }
   }

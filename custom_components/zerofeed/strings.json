@@ -115,6 +115,9 @@
       },
       "high_soc_threshold": {
         "name": "High SoC priority threshold"
+      },
+      "battery_max_power_override": {
+        "name": "Max power override ({battery})"
       }
     }
   }

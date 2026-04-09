@@ -99,6 +99,7 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
             )
 
         self.batteries = batteries
+        self._per_battery_max_overrides: dict[str, float] = {}
 
     def _unit_issue_id(self, entity_id: str) -> str:
         return f"invalid_unit_{slugify(entity_id)}"
@@ -131,6 +132,13 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
 
     def set_control_value(self, key: str, value: float) -> None:
         self.controls[key] = float(value)
+
+    def set_battery_max_override(self, battery_id: str, value: float) -> None:
+        value = float(value)
+        if value <= 0:
+            self._per_battery_max_overrides.pop(battery_id, None)
+        else:
+            self._per_battery_max_overrides[battery_id] = value
 
     def iter_entity_ids(self) -> Iterable[str]:
         yield self.load_entity
@@ -308,7 +316,11 @@ class ZerofeedCoordinator(DataUpdateCoordinator[dict]):
         per_batt_max: dict[str, float] = {}
         per_battery_max_w = max(0.0, float(self.controls.get(CTRL_PER_BATTERY_MAX_W, DEFAULT_PER_BATTERY_MAX_W)))
         for b, _, _ in valid:
-            per_batt_max[b.battery_id] = per_battery_max_w
+            override = self._per_battery_max_overrides.get(b.battery_id)
+            if override is not None and override > 0:
+                per_batt_max[b.battery_id] = min(per_battery_max_w, override)
+            else:
+                per_batt_max[b.battery_id] = per_battery_max_w
 
         sum_max = sum(per_batt_max.values())
         effective_target = min(target_total_w, sum_max)
