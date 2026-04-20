@@ -58,6 +58,7 @@ async def async_setup_entry(
             step=25.0,
             default=DEFAULT_TOTAL_MAX_W,
             icon="mdi:arrow-collapse-down",
+            mode=NumberMode.BOX,
         ),
         NumberSpec(
             key=CTRL_PER_BATTERY_MAX_W,
@@ -68,6 +69,7 @@ async def async_setup_entry(
             step=25.0,
             default=DEFAULT_PER_BATTERY_MAX_W,
             icon="mdi:battery-high",
+            mode=NumberMode.BOX,
         ),
         NumberSpec(
             key=CTRL_SIGMOID_K,
