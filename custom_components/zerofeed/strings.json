@@ -83,6 +83,11 @@
     }
   },
   "entity": {
+    "binary_sensor": {
+      "high_priority_discharge_active": {
+        "name": "High priority discharge active"
+      }
+    },
     "sensor": {
       "total_feedin_power": {
         "name": "Total feed-in power"
